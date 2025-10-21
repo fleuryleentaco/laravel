@@ -1,80 +1,104 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="fr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-
-    <!-- Scripts -->
-
+    <title>{{ config('app.name','Laravel') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      body{font-family: 'Inter', sans-serif}
+      .animated-gradient{background-size:200% 200%;animation:gradient-animation 15s ease infinite}
+      @keyframes gradient-animation{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+      .glass-effect{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08)}
+    </style>
 </head>
-<body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+<body class="bg-slate-900 text-white min-h-screen">
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-
-                    </ul>
-
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
+  <nav class="w-full py-4 px-6 lg:px-12 bg-transparent absolute top-0 left-0 z-20">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="{{ url('/') }}" class="text-xl font-semibold">{{ config('app.name','AntiPlag') }}</a>
+      <div class="flex items-center gap-4">
+        @guest
+          <a href="{{ route('login') }}" class="text-sm text-indigo-200 hover:text-white">Se connecter</a>
+          <a href="{{ route('register') }}" class="text-sm text-indigo-200 hover:text-white">S'inscrire</a>
+        @else
+          <a href="{{ route('documents.index') }}" class="text-sm text-indigo-200 hover:text-white">Mes documents</a>
+          @if((auth()->user()->id_role_user ?? 0)==1)
+            <div class="relative">
+              <button id="adminMenuBtn" class="text-sm text-indigo-200 hover:text-white">Admin ▾</button>
+              <div id="adminMenu" class="hidden absolute right-0 mt-2 w-48 bg-white/5 glass-effect p-2 rounded-md">
+                <a href="{{ route('admin.users') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Utilisateurs</a>
+                <a href="{{ route('admin.errors') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Erreurs</a>
+                <a href="{{ route('admin.reports') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Rapports</a>
+              </div>
             </div>
-        </nav>
-
-        <main class="py-4">
-            @yield('content')
-        </main>
+          @endif
+          <div class="relative">
+            <button id="userMenuBtn" class="text-sm text-indigo-200 hover:text-white">{{ auth()->user()->name ?? auth()->user()->email }}</button>
+            <div id="userMenu" class="hidden absolute right-0 mt-2 w-56 bg-white/5 glass-effect p-2 rounded-md">
+              <a href="{{ route('profile.show') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Mon profil</a>
+              <a href="#" onclick="event.preventDefault();document.getElementById('logout-form').submit();" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Logout</a>
+            </div>
+          </div>
+        @endguest
+      </div>
     </div>
+  </nav>
+
+  <div class="flex min-h-screen pt-16">
+  <div class="hidden lg:flex lg:w-2/5 items-center justify-center p-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-500 animated-gradient">
+      <div class="text-center max-w-md">
+        <h1 class="text-4xl font-bold tracking-tight mb-4">Bienvenue</h1>
+        <p class="text-lg text-indigo-100 opacity-90">AntiPlag — analyse et gestion des documents.</p>
+      </div>
+    </div>
+
+  <main class="w-full lg:w-3/5 flex items-center justify-center p-6 sm:p-12">
+      <div class="w-full max-w-md">
+        <div class="glass-effect p-8 md:p-10 rounded-2xl shadow-2xl">
+          @yield('content')
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none">@csrf</form>
+
+  <script>
+    document.getElementById('userMenuBtn')?.addEventListener('click', function(e){
+      const menu = document.getElementById('userMenu');
+      if(!menu) return;
+      menu.classList.toggle('hidden');
+    });
+    // admin menu toggle
+    document.getElementById('adminMenuBtn')?.addEventListener('click', function(e){
+      e.stopPropagation();
+      const menu = document.getElementById('adminMenu');
+      if(!menu) return;
+      menu.classList.toggle('hidden');
+    });
+
+    // close menus when clicking outside
+    document.addEventListener('click', function(e){
+      const userMenu = document.getElementById('userMenu');
+      const adminMenu = document.getElementById('adminMenu');
+      if(userMenu && !userMenu.classList.contains('hidden')){
+        // if click outside userMenu and userMenuBtn
+        const btn = document.getElementById('userMenuBtn');
+        if(btn && !btn.contains(e.target) && !userMenu.contains(e.target)){
+          userMenu.classList.add('hidden');
+        }
+      }
+      if(adminMenu && !adminMenu.classList.contains('hidden')){
+        const btnA = document.getElementById('adminMenuBtn');
+        if(btnA && !btnA.contains(e.target) && !adminMenu.contains(e.target)){
+          adminMenu.classList.add('hidden');
+        }
+      }
+    });
+  </script>
 </body>
 </html>

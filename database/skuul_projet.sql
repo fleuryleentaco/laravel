@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS `role` (
   `id_role_user` int NOT NULL AUTO_INCREMENT,
   `role` varchar(50) NOT NULL,
   PRIMARY KEY (`id_role_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `role`
