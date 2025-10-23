@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('documents/create', [DocumentController::class,'create'])->name('documents.create');
     Route::post('documents', [DocumentController::class,'store'])->name('documents.store');
     Route::get('documents/errors', [DocumentController::class,'errors'])->name('documents.errors');
+    // user download and compare routes
+    Route::get('documents/{id}/download', [DocumentController::class,'download'])->name('documents.download');
+    Route::get('documents/{id}/compare', [DocumentController::class,'compare'])->name('documents.compare');
     // analyze a single document (user-triggered)
     Route::post('documents/{id}/analyze', [DocumentController::class,'analyze'])->name('documents.analyze');
 
@@ -53,6 +56,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('errors/{id}/send', [AdminController::class,'sendMessage'])->name('sendMessage');
     Route::get('errors/{id}/re-analyze', [AdminController::class,'reAnalyze'])->name('reAnalyze');
     Route::get('approve/{id}', [AdminController::class,'approveDocument'])->name('approve');
+    // download a document via controller (secured)
+    Route::get('documents/{id}/download', [AdminController::class,'download'])->name('documents.download');
     Route::get('reports', [AdminController::class,'reports'])->name('reports');
     Route::get('compare/{id}', [AdminController::class,'compare'])->name('compare');
     // users management
