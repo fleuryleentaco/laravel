@@ -39,9 +39,9 @@ class DocumentController extends Controller
 
         foreach ($request->file('files', []) as $file) {
             $filename = time() . '_' . Str::random(6) . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('documents', $filename);
-            $storedPath = storage_path('app/' . $path);
-            
+            $path = $file->storeAs('private/documents', $filename); // Save to private/documents
+            $storedPath = $file->getRealPath(); // Use temp path for immediate reading
+            \Log::debug('Trying to extract content from: ' . $storedPath . ' | Exists: ' . (file_exists($storedPath) ? 'yes' : 'no'));
             // Extraction du contenu
             $content = $this->extractContentFromPath(
                 $file->getMimeType(), 
@@ -65,9 +65,8 @@ class DocumentController extends Controller
                 $doc->save();
 
                 // --- VÉRIFICATION DES RÈGLES ---
-                
-                // 1. Règles de base (longueur + contenu banni)
                 $basicErrors = $this->checkBasicRules($content);
+                $similarityErrors = $this->checkSimilarity($doc, 0.5);
                 foreach ($basicErrors as $e) {
                     DocumentError::create([
                         'document_id' => $doc->id,
@@ -76,9 +75,6 @@ class DocumentController extends Controller
                         'message' => $e['message'],
                     ]);
                 }
-
-                // 2. Vérification de similarité (seuil 0.5)
-                $similarityErrors = $this->checkSimilarity($doc, 0.5);
                 foreach ($similarityErrors as $e) {
                     DocumentError::create([
                         'document_id' => $doc->id,
@@ -87,7 +83,14 @@ class DocumentController extends Controller
                         'message' => $e['message'],
                     ]);
                 }
-
+                // Approval logic
+                $wordCount = $this->countWords($content);
+                if ($wordCount < 20 || count($similarityErrors) > 0) {
+                    $doc->approved = false;
+                } else {
+                    $doc->approved = true;
+                }
+                $doc->save();
                 $uploaded[] = [
                     'doc' => $doc, 
                     'errors' => array_merge($basicErrors, $similarityErrors)
@@ -115,10 +118,11 @@ class DocumentController extends Controller
         return view('documents.errors', compact('errors'));
     }
 
-    public function reportCreate()
+    public function reportCreate(Request $request)
     {
         $documents = auth()->user()->documents()->pluck('filename', 'id');
-        return view('reports.create', compact('documents'));
+        $selected = $request->query('document_id');
+        return view('reports.create', compact('documents', 'selected'));
     }
 
     public function reportStore(Request $request)
@@ -153,9 +157,8 @@ class DocumentController extends Controller
             // Calcul/mise à jour de la signature MinHash
             $doc->minhash = $this->computeMinHash($doc->content, 5, 64);
             $doc->save();
-
-            // 1. Vérification des règles de base
             $basicErrors = $this->checkBasicRules($doc->content);
+            $similarityErrors = $this->checkSimilarity($doc, 0.6);
             foreach ($basicErrors as $e) {
                 DocumentError::create([
                     'document_id' => $doc->id,
@@ -164,9 +167,6 @@ class DocumentController extends Controller
                     'message' => $e['message'],
                 ]);
             }
-
-            // 2. Vérification de similarité (seuil 0.6 pour analyse manuelle)
-            $similarityErrors = $this->checkSimilarity($doc, 0.6);
             foreach ($similarityErrors as $e) {
                 DocumentError::create([
                     'document_id' => $doc->id,
@@ -175,7 +175,14 @@ class DocumentController extends Controller
                     'message' => $e['message'],
                 ]);
             }
-
+            // Approval logic
+            $wordCount = $this->countWords($doc->content);
+            if ($wordCount < 20 || count($similarityErrors) > 0) {
+                $doc->approved = false;
+            } else {
+                $doc->approved = true;
+            }
+            $doc->save();
             $totalErrors = count($basicErrors) + count($similarityErrors);
             $message = $totalErrors > 0 
                 ? "Analyse terminée : $totalErrors erreur(s) détectée(s)" 
@@ -228,7 +235,7 @@ class DocumentController extends Controller
             ->get();
         
         $results = [];
-        
+        $shortCommonError = null;
         foreach ($existing as $other) {
             if (!$other->content) continue;
 
@@ -256,6 +263,11 @@ class DocumentController extends Controller
                 $sa = $this->shinglesText($doc->content, 5);
                 $sb = $this->shinglesText($other->content, 5);
                 $common = array_keys(array_intersect_key($sa, $sb));
+                $commonText = count($common) ? $common[0] : '';
+                $commonWordCount = $this->countWords($commonText);
+                if ($commonWordCount > 0 && $commonWordCount <= 20) {
+                    $shortCommonError = 'Ne depasse pas 20 mots';
+                }
                 $snippet = count($common) 
                     ? substr($common[0], 0, 100) . '...' 
                     : substr(strip_tags($other->content), 0, 100) . '...';
@@ -271,6 +283,6 @@ class DocumentController extends Controller
         // Tri par similarité décroissante
         usort($results, fn($a, $b) => $b['sim'] <=> $a['sim']);
 
-        return view('admin.compare', compact('doc', 'results'));
+        return view('admin.compare', compact('doc', 'results', 'shortCommonError'));
     }
 }

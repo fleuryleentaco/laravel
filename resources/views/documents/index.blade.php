@@ -74,10 +74,10 @@
 
             <!-- Actions (footer fixe) -->
             <div class="px-5 py-4 bg-white/5 border-t border-white/10 flex flex-wrap items-center gap-3">
-                <a href="{{ route('documents.download', $d->id) }}"
+                <!-- <a href="{{ route('documents.download', $d->id) }}"
                    class="text-xs text-indigo-400 hover:text-indigo-200 transition font-medium">
                     📥 Télécharger
-                </a>
+                </a> -->
 
                 <a href="{{ route('documents.compare', $d->id) }}"
                    class="text-xs text-blue-400 hover:text-blue-200 transition font-medium">
@@ -91,6 +91,13 @@
                         🔎 Détecter erreurs
                     </button>
                 </form>
+
+                @if(!$d->approved)
+                    <a href="{{ route('reports.create', ['document_id' => $d->id]) }}"
+                       class="text-xs text-red-400 hover:text-red-200 transition font-medium">
+                        🚩 Réclamer
+                    </a>
+                @endif
             </div>
 
             <!-- Effet décoratif -->

@@ -12,7 +12,7 @@
                     <select name="document_id" class="form-control">
                         <option value="">-- Aucun --</option>
                         @foreach($documents as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
+                            <option value="{{ $id }}" @if(isset($selected) && $selected == $id) selected @endif>{{ $name }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -120,5 +120,11 @@
             <p class="text-gray-400">Ce document ne présente pas de similarité significative avec d'autres documents du système.</p>
         </div>
     @endif
+
+    @if(isset($shortCommonError) && $shortCommonError)
+        <div class="mb-6 px-4 py-3 rounded-lg bg-red-600/20 border border-red-500/30 text-red-200 text-center text-lg font-semibold">
+            {{ $shortCommonError }}
+        </div>
+    @endif
 </div>
 @endsection
