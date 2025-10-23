@@ -21,27 +21,30 @@
         </div>
     </div>
 
+    @if(isset($shortCommonError) && $shortCommonError)
+        <div class="mb-6 px-4 py-3 rounded-lg bg-red-600/20 border border-red-500/30 text-red-200 text-center text-lg font-semibold shadow">
+            {{ $shortCommonError }}
+        </div>
+    @endif
+
     @if(count($results) > 0)
         <!-- Statistiques rapides -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="px-5 py-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
+            <div class="px-5 py-4 bg-white/10 border border-indigo-500/20 rounded-xl shadow">
                 <div class="text-2xl font-bold text-indigo-400">{{ count($results) }}</div>
                 <div class="text-sm text-gray-400">Document(s) similaire(s)</div>
             </div>
-            
-            <div class="px-5 py-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
+            <div class="px-5 py-4 bg-white/10 border border-yellow-500/20 rounded-xl shadow">
                 <div class="text-2xl font-bold text-yellow-400">{{ round($results[0]['sim'] * 100, 2) }}%</div>
                 <div class="text-sm text-gray-400">Similarité maximale</div>
             </div>
-            
-            <div class="px-5 py-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
+            <div class="px-5 py-4 bg-white/10 border border-blue-500/20 rounded-xl shadow">
                 <div class="text-2xl font-bold text-blue-400">{{ round(collect($results)->avg('sim') * 100, 2) }}%</div>
                 <div class="text-sm text-gray-400">Similarité moyenne</div>
             </div>
         </div>
-
         <!-- Tableau des résultats -->
-        <div class="overflow-hidden rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+        <div class="overflow-hidden rounded-xl bg-white/10 border border-white/20 shadow">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="text-left text-gray-100 bg-white/10">
@@ -54,7 +57,7 @@
                     </thead>
                     <tbody class="text-gray-200">
                         @foreach($results as $r)
-                            <tr class="border-t border-white/5 hover:bg-white/5 transition-colors">
+                            <tr class="border-t border-white/10 hover:bg-white/5 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="font-medium">{{ $r['other']->filename }}</div>
                                     <div class="text-xs text-gray-400 mt-1">ID: {{ $r['other']->id }}</div>
@@ -72,8 +75,6 @@
                                         <span class="text-2xl font-bold {{ $colorClass }}">
                                             {{ $percentage }}%
                                         </span>
-                                        
-                                        <!-- Barre de progression -->
                                         <div class="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
                                             <div class="h-full {{ $percentage >= 80 ? 'bg-red-500' : 
                                                                    ($percentage >= 50 ? 'bg-yellow-500' : 'bg-blue-500') }}" 
@@ -97,13 +98,6 @@
                                                   border border-yellow-500/30 transition text-xs font-medium">
                                             🔎 Ré-analyser
                                         </a>
-                                        
-                                        <a href="{{ route('admin.documents.download', $r['other']->id) }}" 
-                                           class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg 
-                                                  bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 
-                                                  border border-indigo-500/30 transition text-xs font-medium">
-                                            📥 Télécharger
-                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -113,18 +107,19 @@
             </div>
         </div>
     @else
-        <!-- Aucun résultat -->
-        <div class="text-center py-20 px-6 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
-            <div class="text-6xl mb-4">✅</div>
-            <h3 class="text-2xl font-bold mb-2">Aucune similarité détectée</h3>
-            <p class="text-gray-400">Ce document ne présente pas de similarité significative avec d'autres documents du système.</p>
-        </div>
-    @endif
-
-    @if(isset($shortCommonError) && $shortCommonError)
-        <div class="mb-6 px-4 py-3 rounded-lg bg-red-600/20 border border-red-500/30 text-red-200 text-center text-lg font-semibold">
-            {{ $shortCommonError }}
-        </div>
+        @if(isset($shortCommonError) && $shortCommonError)
+            <div class="text-center py-20 px-6 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h3 class="text-2xl font-bold mb-2 text-red-300">{{ $shortCommonError }}</h3>
+                <p class="text-gray-400">Le contenu commun ne dépasse pas 20 mots.</p>
+            </div>
+        @else
+            <div class="text-center py-20 px-6 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
+                <div class="text-6xl mb-4">✅</div>
+                <h3 class="text-2xl font-bold mb-2">Aucune similarité détectée</h3>
+                <p class="text-gray-400">Ce document ne présente pas de similarité significative avec d'autres documents du système.</p>
+            </div>
+        @endif
     @endif
 </div>
 @endsection
