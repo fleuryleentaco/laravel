@@ -137,4 +137,63 @@ class DocumentController extends Controller
         ]);
     return redirect()->route('documents.index')->with('status','Rapport soumis');
     }
+
+    public function analyze(Request $request, $id)
+    {
+        $doc = Document::findOrFail($id);
+        // permission: owner or admin
+        if (auth()->id() !== $doc->user_id && (auth()->user()->id_role_user ?? 0) != 1) {
+            abort(403);
+        }
+
+        // remove previous errors for this document
+        DocumentError::where('document_id', $doc->id)->delete();
+
+        $errors = [];
+        if ($doc->content) {
+            $words = str_word_count(strip_tags($doc->content));
+            if ($words < 20) {
+                $errors[] = ['type' => 'too_short', 'message' => 'Document too short (<20 words)'];
+            }
+            $banned = ['loremipsum','plagiarize_example'];
+            foreach ($banned as $bad) {
+                if (stripos($doc->content, $bad) !== false) {
+                    $errors[] = ['type' => 'banned_content', 'message' => "Contains banned phrase: $bad"];
+                }
+            }
+
+            // compute minhash for this document if missing
+            $sig = $this->computeMinHash($doc->content, 5, 64);
+            $doc->minhash = $sig; $doc->save();
+
+            // similarity check vs existing documents
+            $threshold = 0.6;
+            $existing = Document::whereNotNull('content')->where('id','<>',$doc->id)->get();
+            foreach($existing as $other) {
+                $fast = 0;
+                if ($other->minhash) {
+                    $fast = $this->minhashSimilarity($doc->minhash ?? [], $other->minhash);
+                }
+                if ($fast >= 0.5) {
+                    $sim = $this->jaccardSimilarityText($doc->content, $other->content, 5);
+                } else {
+                    $sim = 0;
+                }
+                if ($sim >= $threshold) {
+                    $errors[] = ['type' => 'similarity', 'message' => "Similar to document ID {$other->id} (".round($sim*100,2)."%)"];
+                }
+            }
+        }
+
+        foreach ($errors as $e) {
+            DocumentError::create([
+                'document_id' => $doc->id,
+                'user_id' => $doc->user_id,
+                'error_type' => $e['type'],
+                'message' => $e['message'],
+            ]);
+        }
+
+        return redirect()->back()->with('status','Analyse terminée pour le document');
+    }
 }

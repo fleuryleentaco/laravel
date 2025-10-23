@@ -68,6 +68,13 @@ class AdminController extends Controller
         return view('admin.users', compact('users'));
     }
 
+    // list all documents uploaded by all users
+    public function documents()
+    {
+        $documents = Document::with('user','errors')->orderBy('created_at','desc')->paginate(30);
+        return view('admin.documents', compact('documents'));
+    }
+
     public function toggleRole(Request $request, $id)
     {
         $user = User::findOrFail($id);

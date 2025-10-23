@@ -31,6 +31,7 @@
               <button id="adminMenuBtn" class="text-sm text-indigo-200 hover:text-white">Admin ▾</button>
               <div id="adminMenu" class="hidden absolute right-0 mt-2 w-48 bg-white/5 glass-effect p-2 rounded-md">
                 <a href="{{ route('admin.users') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Utilisateurs</a>
+                <a href="{{ route('admin.documents') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Fichiers</a>
                 <a href="{{ route('admin.errors') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Erreurs</a>
                 <a href="{{ route('admin.reports') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Rapports</a>
               </div>
@@ -49,14 +50,16 @@
   </nav>
 
   <div class="flex min-h-screen pt-16">
+  @unless(View::hasSection('no_hero'))
   <div class="hidden lg:flex lg:w-2/5 items-center justify-center p-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-500 animated-gradient">
       <div class="text-center max-w-md">
         <h1 class="text-4xl font-bold tracking-tight mb-4">Bienvenue</h1>
         <p class="text-lg text-indigo-100 opacity-90">AntiPlag — analyse et gestion des documents.</p>
       </div>
     </div>
+  @endunless
 
-  <main class="w-full lg:w-3/5 flex items-center justify-center p-6 sm:p-12">
+  <main class="w-full @unless(View::hasSection('no_hero')) lg:w-3/5 @else lg:w-full @endunless flex items-center justify-center p-6 sm:p-12">
       <div class="w-full max-w-md">
         <div class="glass-effect p-8 md:p-10 rounded-2xl shadow-2xl">
           @yield('content')

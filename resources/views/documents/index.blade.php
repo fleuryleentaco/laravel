@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@section('no_hero')@endsection
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 text-white p-6">
 
     <!-- Header -->
@@ -53,6 +54,14 @@
                        class="text-sm text-indigo-400 hover:text-indigo-200 transition">
                         Comparer
                     </a>
+
+                    <!-- Detect errors button (run analysis) -->
+                    <form method="POST" action="{{ route('documents.analyze', $d->id) }}" class="inline-block">
+                        @csrf
+                        <button type="submit" class="text-sm text-yellow-300 hover:text-yellow-200 transition ml-3">
+                            Détecter erreurs
+                        </button>
+                    </form>
 
                     <span class="ml-auto text-xs font-medium px-2 py-1 rounded-full 
                         {{ $d->approved ? 'bg-green-600/30 text-green-300 border border-green-500/30' 

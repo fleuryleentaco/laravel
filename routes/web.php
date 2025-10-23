@@ -30,9 +30,14 @@ Route::middleware('auth')->group(function () {
     Route::get('documents/create', [DocumentController::class,'create'])->name('documents.create');
     Route::post('documents', [DocumentController::class,'store'])->name('documents.store');
     Route::get('documents/errors', [DocumentController::class,'errors'])->name('documents.errors');
+    // analyze a single document (user-triggered)
+    Route::post('documents/{id}/analyze', [DocumentController::class,'analyze'])->name('documents.analyze');
 
     Route::get('reports/create', [DocumentController::class,'reportCreate'])->name('reports.create');
     Route::post('reports', [DocumentController::class,'reportStore'])->name('reports.store');
+
+    // Admin: list all documents (admins only)
+    Route::get('admin/documents', [\App\Http\Controllers\AdminController::class,'documents'])->name('admin.documents');
 
     // Profile routes for authenticated users
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
