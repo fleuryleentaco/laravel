@@ -60,8 +60,8 @@
   @endunless
 
   <main class="w-full @unless(View::hasSection('no_hero')) lg:w-3/5 @else lg:w-full @endunless flex items-center justify-center p-6 sm:p-12">
-      <div class="w-full max-w-md">
-        <div class="glass-effect p-8 md:p-10 rounded-2xl shadow-2xl">
+      <div class="w-full @unless(View::hasSection('no_hero')) max-w-md @else max-w-4xl @endunless">
+        <div class="glass-effect p-8 md:p-12 lg:p-16 rounded-2xl shadow-2xl">
           @yield('content')
         </div>
       </div>

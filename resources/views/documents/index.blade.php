@@ -28,7 +28,7 @@
     @endif
 
     <!-- Grille des documents -->
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         @forelse($documents as $d)
             <div class="relative group rounded-2xl p-5 backdrop-blur-md bg-white/5 border border-white/10 
                         hover:border-indigo-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10">
@@ -44,7 +44,7 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex items-center gap-3 mt-3">
+                <div class="flex items-center gap-4 mt-4">
                     <a href="{{ Storage::url($d->path) }}" target="_blank"
                        class="text-sm text-indigo-400 hover:text-indigo-200 transition">
                         Télécharger
@@ -63,7 +63,7 @@
                         </button>
                     </form>
 
-                    <span class="ml-auto text-xs font-medium px-2 py-1 rounded-full 
+                    <span class="ml-auto text-sm font-medium px-3 py-1 rounded-full 
                         {{ $d->approved ? 'bg-green-600/30 text-green-300 border border-green-500/30' 
                                        : 'bg-gray-700/50 text-gray-300 border border-gray-600/50' }}">
                         {{ $d->approved ? '✅ Approuvé' : '⏳ Non approuvé' }}
