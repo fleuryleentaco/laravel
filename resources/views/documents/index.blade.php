@@ -10,14 +10,22 @@
             <h2 class="text-3xl font-bold mb-1">📄 Mes Documents</h2>
             <p class="text-indigo-300 text-sm">Gérez, téléchargez et comparez vos fichiers facilement</p>
         </div>
-        <a href="{{ route('documents.create') }}" 
-           class="mt-4 sm:mt-0 inline-flex items-center gap-2 py-2.5 px-5 rounded-lg bg-indigo-600 hover:bg-indigo-500 
-                  shadow-md transition-all duration-300 hover:scale-105 font-medium">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Uploader
-        </a>
+        <div class="flex gap-3">
+            <a href="{{ route('documents.create') }}" 
+               class="mt-4 sm:mt-0 inline-flex items-center gap-2 py-2.5 px-5 rounded-lg bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all duration-300 hover:scale-105 font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Uploader
+            </a>
+            <a href="{{ route('documents.errors') }}" 
+               class="mt-4 sm:mt-0 inline-flex items-center gap-2 py-2.5 px-5 rounded-lg bg-pink-600 hover:bg-pink-500 shadow-md transition-all duration-300 hover:scale-105 font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414 1.414M6.343 17.657l-1.414 1.414M5 12H3m18 0h-2M6.343 6.343l-1.414-1.414M17.657 17.657l-1.414-1.414" />
+                </svg>
+                Voir mes erreurs
+            </a>
+        </div>
     </div>
 
     <!-- Message de succès -->
