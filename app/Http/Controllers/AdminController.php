@@ -254,8 +254,10 @@ class AdminController extends Controller
         $details = $request->input('details');
         $report->status = 'error_sent';
         $report->save();
-        // Send notification to the user
-        $report->user->notify(new \App\Notifications\ReportErrorResult($details));
+        // Send notification to the user with file name and report description
+        $fileName = $report->document->filename ?? 'Document supprimé';
+        $reportDescription = $report->description;
+        $report->user->notify(new \App\Notifications\ReportErrorResult($fileName, $reportDescription, $details));
         return redirect()->back()->with('status', 'Résultat envoyé à l’utilisateur : ' . $details);
     }
 }
