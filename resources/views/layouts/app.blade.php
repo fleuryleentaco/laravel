@@ -26,7 +26,7 @@
           <a href="{{ route('register') }}" class="text-sm text-indigo-200 hover:text-white">S'inscrire</a>
         @else
           <a href="{{ route('documents.index') }}" class="text-indigo-200 hover:text-white">Mes documents</a>
-          <a href="{{ route('profile.show') }}" class="text-indigo-200 hover:text-white">{{ Auth::user()->name ?? 'Profil' }}</a>
+          <!-- <a href="{{ route('profile.show') }}" class="text-indigo-200 hover:text-white">{{ Auth::user()->name ?? 'Profil' }}</a> -->
           <div class="relative group">
                 <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden')" class="focus:outline-none relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
