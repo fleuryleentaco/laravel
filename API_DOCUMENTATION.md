@@ -19,83 +19,86 @@ Retrieve a paginated list of all documents with full metadata.
 **Endpoint:** `GET /api/v1/documents`
 
 **Parameters:**
-- `per_page` (optional): Number of items per page (default: 50, max: 100)
+
+-   `per_page` (optional): Number of items per page (default: 50, max: 100)
 
 **Example Request:**
+
 ```bash
 curl "http://your-domain.com/api/v1/documents?per_page=20"
 ```
 
 **Example Response:**
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "titre": "Mémoire de Licence",
-      "statut": "archive",
-      "statut_label": "Archivé",
-      "fichier": {
-        "nom_original": "memoire_final.pdf",
-        "nom_stocke": "1234567890_memoire.pdf",
-        "extension": "pdf",
-        "taille": 2048576,
-        "taille_formatee": "2.00 MB",
-        "url_download": "http://your-domain.com/api/v1/documents/1/download"
-      },
-      "etudiant": {
-        "id": 1,
-        "nom": "NDAYIZEYE",
-        "prenom": "Jean",
-        "matricule": "UB2024001",
-        "email": "jean@student.uniburundi.bi",
-        "faculte": "Sciences",
-        "departement": "Informatique"
-      },
-      "type_document": {
-        "id": 1,
-        "nom": "Mémoire",
-        "code": "MEM",
-        "description": "Mémoire de fin d'études"
-      },
-      "traitement": {
-        "remarques": "Document validé",
-        "date_traitement": "2024-10-20 14:30:00",
-        "traite_par": {
-          "id": 1,
-          "nom": "NKURUNZIZA",
-          "prenom": "Marie",
-          "email": "admin@uniburundi.bi"
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "titre": "Mémoire de Licence",
+            "statut": "archive",
+            "statut_label": "Archivé",
+            "fichier": {
+                "nom_original": "memoire_final.pdf",
+                "nom_stocke": "1234567890_memoire.pdf",
+                "extension": "pdf",
+                "taille": 2048576,
+                "taille_formatee": "2.00 MB",
+                "url_download": "http://your-domain.com/api/v1/documents/1/download"
+            },
+            "etudiant": {
+                "id": 1,
+                "nom": "NDAYIZEYE",
+                "prenom": "Jean",
+                "matricule": "UB2024001",
+                "email": "jean@student.uniburundi.bi",
+                "faculte": "Sciences",
+                "departement": "Informatique"
+            },
+            "type_document": {
+                "id": 1,
+                "nom": "Mémoire",
+                "code": "MEM",
+                "description": "Mémoire de fin d'études"
+            },
+            "traitement": {
+                "remarques": "Document validé",
+                "date_traitement": "2024-10-20 14:30:00",
+                "traite_par": {
+                    "id": 1,
+                    "nom": "NKURUNZIZA",
+                    "prenom": "Marie",
+                    "email": "admin@uniburundi.bi"
+                }
+            },
+            "archivage": {
+                "reference": "UB-2024-ABC123",
+                "emplacement_physique": "Salle A, Étagère 5, Boîte 12",
+                "notes": "Archivé avec annexes",
+                "date_archivage": "2024-10-21 10:00:00",
+                "archive_par": {
+                    "id": 1,
+                    "nom": "NKURUNZIZA",
+                    "prenom": "Marie"
+                }
+            },
+            "created_at": "2024-10-15 09:00:00",
+            "updated_at": "2024-10-21 10:00:00"
         }
-      },
-      "archivage": {
-        "reference": "UB-2024-ABC123",
-        "emplacement_physique": "Salle A, Étagère 5, Boîte 12",
-        "notes": "Archivé avec annexes",
-        "date_archivage": "2024-10-21 10:00:00",
-        "archive_par": {
-          "id": 1,
-          "nom": "NKURUNZIZA",
-          "prenom": "Marie"
-        }
-      },
-      "created_at": "2024-10-15 09:00:00",
-      "updated_at": "2024-10-21 10:00:00"
+    ],
+    "meta": {
+        "current_page": 1,
+        "last_page": 5,
+        "per_page": 20,
+        "total": 95
+    },
+    "links": {
+        "first": "http://your-domain.com/api/v1/documents?page=1",
+        "last": "http://your-domain.com/api/v1/documents?page=5",
+        "prev": null,
+        "next": "http://your-domain.com/api/v1/documents?page=2"
     }
-  ],
-  "meta": {
-    "current_page": 1,
-    "last_page": 5,
-    "per_page": 20,
-    "total": 95
-  },
-  "links": {
-    "first": "http://your-domain.com/api/v1/documents?page=1",
-    "last": "http://your-domain.com/api/v1/documents?page=5",
-    "prev": null,
-    "next": "http://your-domain.com/api/v1/documents?page=2"
-  }
 }
 ```
 
@@ -108,11 +111,13 @@ Retrieve detailed information about a specific document.
 **Endpoint:** `GET /api/v1/documents/{id}`
 
 **Example Request:**
+
 ```bash
 curl "http://your-domain.com/api/v1/documents/1"
 ```
 
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -132,10 +137,11 @@ curl "http://your-domain.com/api/v1/documents/1"
 ```
 
 **Error Response (404):**
+
 ```json
 {
-  "success": false,
-  "message": "Document not found"
+    "success": false,
+    "message": "Document not found"
 }
 ```
 
@@ -148,6 +154,7 @@ Download the actual document file.
 **Endpoint:** `GET /api/v1/documents/{id}/download`
 
 **Example Request:**
+
 ```bash
 curl -O -J "http://your-domain.com/api/v1/documents/1/download"
 ```
@@ -155,10 +162,11 @@ curl -O -J "http://your-domain.com/api/v1/documents/1/download"
 **Response:** Binary file download with appropriate headers
 
 **Error Response (404):**
+
 ```json
 {
-  "success": false,
-  "message": "File not found on server"
+    "success": false,
+    "message": "File not found on server"
 }
 ```
 
@@ -171,20 +179,24 @@ Retrieve documents filtered by their status.
 **Endpoint:** `GET /api/v1/documents/status/{status}`
 
 **Valid Status Values:**
-- `en_attente` - Pending validation
-- `valide` - Validated
-- `rejete` - Rejected
-- `archive` - Archived
+
+-   `en_attente` - Pending validation
+-   `valide` - Validated
+-   `rejete` - Rejected
+-   `archive` - Archived
 
 **Parameters:**
-- `per_page` (optional): Number of items per page (default: 50, max: 100)
+
+-   `per_page` (optional): Number of items per page (default: 50, max: 100)
 
 **Example Request:**
+
 ```bash
 curl "http://your-domain.com/api/v1/documents/status/archive?per_page=30"
 ```
 
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -201,10 +213,11 @@ curl "http://your-domain.com/api/v1/documents/status/archive?per_page=30"
 ```
 
 **Error Response (400):**
+
 ```json
 {
-  "success": false,
-  "message": "Invalid status. Valid statuses: en_attente, valide, rejete, archive"
+    "success": false,
+    "message": "Invalid status. Valid statuses: en_attente, valide, rejete, archive"
 }
 ```
 
@@ -217,14 +230,17 @@ Retrieve all archived documents with archive-specific information.
 **Endpoint:** `GET /api/v1/archives`
 
 **Parameters:**
-- `per_page` (optional): Number of items per page (default: 50, max: 100)
+
+-   `per_page` (optional): Number of items per page (default: 50, max: 100)
 
 **Example Request:**
+
 ```bash
 curl "http://your-domain.com/api/v1/archives"
 ```
 
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -288,26 +304,29 @@ curl "http://your-domain.com/api/v1/archives"
 ### Authentication Errors
 
 **401 Unauthorized - Missing Token:**
+
 ```json
 {
-  "success": false,
-  "message": "API token is required. Provide it via X-API-Token header or api_token parameter"
+    "success": false,
+    "message": "API token is required. Provide it via X-API-Token header or api_token parameter"
 }
 ```
 
 **403 Forbidden - Invalid Token:**
+
 ```json
 {
-  "success": false,
-  "message": "Invalid API token"
+    "success": false,
+    "message": "Invalid API token"
 }
 ```
 
 **500 Server Error - Not Configured:**
+
 ```json
 {
-  "success": false,
-  "message": "API authentication is not configured on the server"
+    "success": false,
+    "message": "API authentication is not configured on the server"
 }
 ```
 
@@ -342,39 +361,39 @@ if response.status_code == 200:
 ### JavaScript/Node.js Example
 
 ```javascript
-const axios = require('axios');
-const fs = require('fs');
+const axios = require("axios");
+const fs = require("fs");
 
-const API_BASE_URL = 'http://your-domain.com/api/v1';
+const API_BASE_URL = "http://your-domain.com/api/v1";
 
 // Get all documents
 async function getAllDocuments() {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/documents`);
-    console.log(response.data);
-  } catch (error) {
-    console.error('Error:', error.message);
-  }
+    try {
+        const response = await axios.get(`${API_BASE_URL}/documents`);
+        console.log(response.data);
+    } catch (error) {
+        console.error("Error:", error.message);
+    }
 }
 
 // Download a document
 async function downloadDocument(docId) {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/documents/${docId}/download`,
-      { headers, responseType: 'stream' }
-    );
-    
-    const writer = fs.createWriteStream('downloaded_document.pdf');
-    response.data.pipe(writer);
-    
-    return new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  } catch (error) {
-    console.error('Error:', error.response.data);
-  }
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/documents/${docId}/download`,
+            { headers, responseType: "stream" }
+        );
+
+        const writer = fs.createWriteStream("downloaded_document.pdf");
+        response.data.pipe(writer);
+
+        return new Promise((resolve, reject) => {
+            writer.on("finish", resolve);
+            writer.on("error", reject);
+        });
+    } catch (error) {
+        console.error("Error:", error.response.data);
+    }
 }
 
 getAllDocuments();
@@ -424,12 +443,14 @@ Endpoint:
 POST /api/incoming-documents
 
 Headers:
-- X-API-Token: YOUR_SHARED_TOKEN (if the server is configured with `EXTERNAL_API_TOKEN` or `API_TOKEN`)
+
+-   X-API-Token: YOUR_SHARED_TOKEN (if the server is configured with `EXTERNAL_API_TOKEN` or `API_TOKEN`)
 
 Form fields (multipart):
-- file: binary file (PDF, DOCX, etc.)
-- uploader_id: string (an identifier the external system uses for the uploader)
-- callback_url: optional URL where we will POST detected errors (we'll store this per document)
+
+-   file: binary file (PDF, DOCX, etc.)
+-   uploader_id: string (an identifier the external system uses for the uploader)
+-   callback_url: optional URL where we will POST detected errors (we'll store this per document)
 
 Example curl:
 
@@ -448,18 +469,18 @@ Response (201):
 ```
 
 Notes:
-- If an API token is set in our `.env` (`EXTERNAL_API_TOKEN` or `API_TOKEN`), the header is required. If no token is configured, the endpoint accepts public POSTs (not recommended).
-- On receipt we immediately extract text, compute MinHash, run the configured checks (basic rules + similarity) and persist any detected errors to `incoming_document_errors`.
-- If `callback_url` is provided in the request (or configured globally via `EXTERNAL_CALLBACK_URL`), an admin may trigger a POST back to the external system with the detected errors (or you can automate that with a queue/cron). The callback payload looks like:
+
+-   If an API token is set in our `.env` (`EXTERNAL_API_TOKEN` or `API_TOKEN`), the header is required. If no token is configured, the endpoint accepts public POSTs (not recommended).
+-   On receipt we immediately extract text, compute MinHash, run the configured checks (basic rules + similarity) and persist any detected errors to `incoming_document_errors`.
+-   If `callback_url` is provided in the request (or configured globally via `EXTERNAL_CALLBACK_URL`), an admin may trigger a POST back to the external system with the detected errors (or you can automate that with a queue/cron). The callback payload looks like:
 
 ```json
 {
-  "uploader_id": "12345",
-  "document_id": 42,
-  "errors": [ {"type":"too_short","message":"Document trop court"} ]
+    "uploader_id": "12345",
+    "document_id": 42,
+    "errors": [{ "type": "too_short", "message": "Document trop court" }]
 }
 ```
-
 
 ---
 
@@ -476,11 +497,12 @@ For API support or to report issues, contact the system administrator at: admin@
 ## Changelog
 
 ### Version 1.0.0 (October 2024)
-- Initial API release
-- Document listing and retrieval
-- File download capability
-- Status-based filtering
-- Archive information access
+
+-   Initial API release
+-   Document listing and retrieval
+-   File download capability
+-   Status-based filtering
+-   Archive information access
 
 ---
 
@@ -488,17 +510,19 @@ For API support or to report issues, contact the system administrator at: admin@
 
 L'endpoint suivant permet à une plateforme externe de signaler des erreurs détectées sur un document afin que l'étudiant soit notifié et puisse soumettre une correction.
 
-*Méthode:* PATCH
-*Endpoint:* `/api/v1/documents/{id}/erreurs`
-*Authentification:* Aucune requise
+_Méthode:_ PATCH
+_Endpoint:_ `/api/v1/documents/{id}/erreurs`
+_Authentification:_ Aucune requise
 
 ### Paramètres
 
 URL Parameter:
-- `id` (requis) : ID du document dans le système cible
+
+-   `id` (requis) : ID du document dans le système cible
 
 Body Parameters (JSON):
-- `erreur_trouve` (requis, string) : Description textuelle des erreurs détectées
+
+-   `erreur_trouve` (requis, string) : Description textuelle des erreurs détectées
 
 ### Exemple cURL
 
@@ -511,8 +535,8 @@ curl -X PATCH http://10.235.242.237/api/v1/documents/1/erreurs \
 ```
 
 ### Comportement serveur
-- Le serveur recherche le document par `id`. Si introuvable, renvoie 404.
-- Si trouvé, un enregistrement `DocumentError` est créé avec `error_type = 'external'` et `message = erreur_trouve`.
-- Le propriétaire du document (utilisateur) est notifié par email (ou via le driver de mail configuré).
-- Réponse JSON 200 en cas de succès : `{ "message": "Erreur enregistrée", "id": <document_error_id> }`
 
+-   Le serveur recherche le document par `id`. Si introuvable, renvoie 404.
+-   Si trouvé, un enregistrement `DocumentError` est créé avec `error_type = 'external'` et `message = erreur_trouve`.
+-   Le propriétaire du document (utilisateur) est notifié par email (ou via le driver de mail configuré).
+-   Réponse JSON 200 en cas de succès : `{ "message": "Erreur enregistrée", "id": <document_error_id> }`
