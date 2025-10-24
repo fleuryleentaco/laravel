@@ -25,7 +25,34 @@
           <a href="{{ route('login') }}" class="text-sm text-indigo-200 hover:text-white">Se connecter</a>
           <a href="{{ route('register') }}" class="text-sm text-indigo-200 hover:text-white">S'inscrire</a>
         @else
-          <a href="{{ route('documents.index') }}" class="text-sm text-indigo-200 hover:text-white">Mes documents</a>
+          <a href="{{ route('documents.index') }}" class="text-indigo-200 hover:text-white">Mes documents</a>
+          <a href="{{ route('profile.show') }}" class="text-indigo-200 hover:text-white">{{ Auth::user()->name ?? 'Profil' }}</a>
+          <div class="relative group">
+                <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden')" class="focus:outline-none relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    @php $notifCount = Auth::user()->unreadNotifications->count(); @endphp
+                    @if($notifCount > 0)
+                        <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5">{{ $notifCount }}</span>
+                    @endif
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-gray-900 border border-indigo-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                    <div class="p-4 text-indigo-200 font-semibold border-b border-indigo-700">Notifications</div>
+                    @foreach(Auth::user()->unreadNotifications as $notification)
+                        <div class="px-4 py-3 border-b border-gray-800 text-sm text-indigo-100">
+                            {{ $notification->data['message'] ?? '' }}
+                            <form method="POST" action="{{ route('notifications.read', $notification->id) }}" class="inline">
+                                @csrf
+                                <button class="ml-2 text-xs text-yellow-400 hover:underline">Marquer comme lu</button>
+                            </form>
+                        </div>
+                    @endforeach
+                    @if(Auth::user()->unreadNotifications->isEmpty())
+                        <div class="px-4 py-6 text-center text-gray-400">Aucune notification</div>
+                    @endif
+                </div>
+            </div>
           @if((auth()->user()->id_role_user ?? 0)==1)
             <div class="relative">
               <button id="adminMenuBtn" class="text-sm text-indigo-200 hover:text-white">Admin ▾</button>

@@ -82,29 +82,38 @@
 
             <!-- Actions (footer fixe) -->
             <div class="px-5 py-4 bg-white/5 border-t border-white/10 flex flex-wrap items-center gap-3">
-                <!-- <a href="{{ route('documents.download', $d->id) }}"
-                   class="text-xs text-indigo-400 hover:text-indigo-200 transition font-medium">
-                    📥 Télécharger
-                </a> -->
-
                 <a href="{{ route('documents.compare', $d->id) }}"
                    class="text-xs text-blue-400 hover:text-blue-200 transition font-medium">
                     🔍 Comparer
                 </a>
-
-                <!-- Detect errors button (run analysis) -->
                 <form method="POST" action="{{ route('documents.analyze', $d->id) }}" class="inline-block">
                     @csrf
                     <button type="submit" class="text-xs text-yellow-400 hover:text-yellow-200 transition font-medium">
                         🔎 Détecter erreurs
                     </button>
                 </form>
-
                 @if(!$d->approved)
                     <a href="{{ route('reports.create', ['document_id' => $d->id]) }}"
                        class="text-xs text-red-400 hover:text-red-200 transition font-medium">
                         🚩 Réclamer
                     </a>
+                @endif
+                @if(!$d->locked)
+                    <a href="{{ route('documents.edit', $d->id) }}"
+                       class="text-xs text-green-400 hover:text-green-200 transition font-medium">
+                        ✏️ Modifier
+                    </a>
+                    <a href="{{ route('documents.show', $d->id) }}"
+                       class="text-xs text-blue-400 hover:text-blue-200 transition font-medium">
+                        👁️ Visualiser
+                    </a>
+                    <form method="POST" action="{{ route('documents.destroy', $d->id) }}" class="inline-block" onsubmit="return confirm('Supprimer ce fichier ?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-xs text-red-400 hover:text-red-200 transition font-medium">🗑️ Supprimer</button>
+                    </form>
+                @else
+                    <span class="text-xs text-gray-400">🔒 Verrouillé</span>
                 @endif
             </div>
 

@@ -285,4 +285,60 @@ class DocumentController extends Controller
 
         return view('admin.compare', compact('doc', 'results', 'shortCommonError'));
     }
+
+    public function edit($id)
+    {
+        $doc = Document::findOrFail($id);
+        if (auth()->id() !== $doc->user_id || $doc->locked) {
+            abort(403);
+        }
+        return view('documents.edit', compact('doc'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $doc = Document::findOrFail($id);
+        if (auth()->id() !== $doc->user_id || $doc->locked) {
+            abort(403);
+        }
+        $request->validate([
+            'content' => 'required|string|min:20',
+        ]);
+        $doc->content = $request->input('content');
+        $doc->approved = false;
+        $doc->locked = false;
+        $doc->save();
+        // Optionally, trigger re-analysis here or redirect to analysis
+        return redirect()->route('documents.index')->with('status', 'Document modifié. Veuillez détecter les erreurs à nouveau.');
+    }
+
+    // In approveDocument, lock the document
+    public function approveDocument($id)
+    {
+        $doc = Document::findOrFail($id);
+        $doc->approved = true;
+        $doc->locked = true;
+        $doc->save();
+        DocumentError::where('document_id', $doc->id)->delete();
+        return redirect()->back()->with('status', "Document '{$doc->filename}' approuvé avec succès");
+    }
+
+    public function show($id)
+    {
+        $doc = Document::findOrFail($id);
+        if (auth()->id() !== $doc->user_id) {
+            abort(403);
+        }
+        return view('documents.show', compact('doc'));
+    }
+
+    public function destroy($id)
+    {
+        $doc = Document::findOrFail($id);
+        if (auth()->id() !== $doc->user_id || $doc->locked) {
+            abort(403);
+        }
+        $doc->delete();
+        return redirect()->route('documents.index')->with('status', 'Document supprimé avec succès.');
+    }
 }

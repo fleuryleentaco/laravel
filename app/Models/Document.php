@@ -11,10 +11,11 @@ class Document extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','filename','path','mime','size','content','approved'];
+    protected $fillable = ['user_id','filename','path','mime','size','content','approved','locked'];
 
     protected $casts = [
         'minhash' => 'array',
+        'locked' => 'boolean',
     ];
 
     public function user()

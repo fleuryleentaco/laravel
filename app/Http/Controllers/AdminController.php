@@ -247,4 +247,15 @@ class AdminController extends Controller
         
         return view('admin.compare', compact('doc', 'results'));
     }
+    
+    public function sendReportResult(Request $request, $id)
+    {
+        $report = Report::findOrFail($id);
+        $details = $request->input('details');
+        $report->status = 'error_sent';
+        $report->save();
+        // Send notification to the user
+        $report->user->notify(new \App\Notifications\ReportErrorResult($details));
+        return redirect()->back()->with('status', 'Résultat envoyé à l’utilisateur : ' . $details);
+    }
 }

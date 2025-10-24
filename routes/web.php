@@ -35,6 +35,11 @@ Route::middleware('auth')->group(function () {
     Route::get('documents/{id}/compare', [DocumentController::class,'compare'])->name('documents.compare');
     // analyze a single document (user-triggered)
     Route::post('documents/{id}/analyze', [DocumentController::class,'analyze'])->name('documents.analyze');
+    // add edit/update routes
+    Route::get('documents/{id}/edit', [DocumentController::class,'edit'])->name('documents.edit');
+    Route::put('documents/{id}', [DocumentController::class,'update'])->name('documents.update');
+    Route::get('documents/{id}', [DocumentController::class,'show'])->name('documents.show');
+    Route::delete('documents/{id}', [DocumentController::class,'destroy'])->name('documents.destroy');
 
     Route::get('reports/create', [DocumentController::class,'reportCreate'])->name('reports.create');
     Route::post('reports', [DocumentController::class,'reportStore'])->name('reports.store');
@@ -64,4 +69,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('users', [AdminController::class,'users'])->name('users');
     Route::post('users/{id}/toggle-role', [AdminController::class,'toggleRole'])->name('users.toggleRole');
     Route::delete('users/{id}', [AdminController::class,'deleteUser'])->name('users.delete');
+    Route::post('reports/{id}/send-result', [AdminController::class, 'sendReportResult'])->name('reports.sendResult');
 });
+
+Route::post('notifications/{id}/read', function($id) {
+    $notification = Auth::user()->notifications()->findOrFail($id);
+    $notification->markAsRead();
+    return back();
+})->name('notifications.read');
