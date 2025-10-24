@@ -20,6 +20,16 @@
             </div>
         </div>
     </div>
+    @if(!empty($detectedErrors) && count($detectedErrors))
+        <div class="mb-6 p-4 bg-red-700/10 border border-red-600/20 rounded">
+            <h3 class="text-lg font-semibold text-red-300 mb-2">Erreurs détectées sur ce document</h3>
+            <ul class="list-disc pl-5 text-sm text-red-100">
+                @foreach($detectedErrors as $err)
+                    <li>{{ $err['type'] }} — {{ $err['message'] }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     @if(isset($shortCommonError) && $shortCommonError)
         <div class="mb-6 px-4 py-3 rounded-lg bg-red-600/20 border border-red-500/30 text-red-200 text-center text-lg font-semibold shadow">

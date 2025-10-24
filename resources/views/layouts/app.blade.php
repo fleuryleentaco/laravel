@@ -61,6 +61,7 @@
                 <a href="{{ route('admin.documents') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Fichiers</a>
                 <a href="{{ route('admin.errors') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Erreurs</a>
                 <a href="{{ route('admin.reports') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Rapports</a>
+                <a href="{{ route('admin.incoming') }}" class="block px-3 py-2 text-sm text-white hover:bg-white/5 rounded">Docs externes</a>
               </div>
             </div>
           @endif

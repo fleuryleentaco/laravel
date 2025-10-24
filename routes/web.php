@@ -65,10 +65,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('documents/{id}/download', [AdminController::class,'download'])->name('documents.download');
     Route::get('reports', [AdminController::class,'reports'])->name('reports');
     Route::get('compare/{id}', [AdminController::class,'compare'])->name('compare');
+    // incoming documents from external API
+    Route::get('incoming', [AdminController::class,'incomingDocuments'])->name('incoming');
+    Route::post('incoming/{id}/send', [AdminController::class,'sendIncomingErrors'])->name('incoming.send');
+    // trigger a fetch from an external API and import new incoming documents
+    Route::post('incoming/fetch', [AdminController::class,'fetchIncomingFromApi'])->name('incoming.fetch');
+    // compare an incoming document specifically (avoid id collision with Document table)
+    Route::get('incoming/{id}/compare', [AdminController::class,'compareIncoming'])->name('incoming.compare');
     // users management
     Route::get('users', [AdminController::class,'users'])->name('users');
     Route::post('users/{id}/toggle-role', [AdminController::class,'toggleRole'])->name('users.toggleRole');
     Route::delete('users/{id}', [AdminController::class,'deleteUser'])->name('users.delete');
+    // Note: incoming documents endpoint is now an API route: POST /api/incoming-documents
     Route::post('reports/{id}/send-result', [AdminController::class, 'sendReportResult'])->name('reports.sendResult');
 });
 
