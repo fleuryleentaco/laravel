@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Services\TextAnalysis;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use App\Models\IncomingDocument;
-use App\Models\IncomingDocumentError;
-use Illuminate\Support\Facades\Http;
 
 class AdminController extends Controller
 {
@@ -108,24 +105,16 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Impossible de modifier votre propre rôle');
         }
         
-        // Basculer le rôle : admin(1) ↔ user(3)
-        // Note: Les ID de rôles dans la base sont 1 (admin) et 3 (user)
-        $newRole = ($user->id_role_user == 1) ? 3 : 1;
-        $user->id_role_user = $newRole;
+        // Basculer le rôle : admin(1) ↔ user(2)
+        $user->id_role_user = ($user->id_role_user == 1) ? 2 : 1;
         $user->save();
         
-        // Révoquer les sessions si rétrogradé (forcer déconnexion)
-        if ($newRole != 1) {
-            // Supprimer toutes les sessions de cet utilisateur
+        // Révoquer les sessions si rétrogradé
+        if (($user->id_role_user ?? 0) != 1) {
             DB::table('sessions')->where('user_id', $user->id)->delete();
-            
-            // Si l'utilisateur est connecté, le déconnecter
-            if (auth()->check() && auth()->id() == $user->id) {
-                auth()->logout();
-            }
         }
         
-        $role = ($newRole == 1) ? 'administrateur' : 'utilisateur';
+        $role = ($user->id_role_user == 1) ? 'administrateur' : 'utilisateur';
         return redirect()->back()->with('status', "Rôle mis à jour : $role");
     }
 
@@ -264,173 +253,11 @@ class AdminController extends Controller
         $report = Report::findOrFail($id);
         $details = $request->input('details');
         $report->status = 'error_sent';
-        $report->admin_response = $details;
         $report->save();
-        
-        // Optionnel: envoyer une notification à l'utilisateur
-        // Mail::to($report->user->email)->send(new ReportResponse($report, $details));
-        
-        return redirect()->back()->with('status', 'Résultat envoyé avec succès');
-    }
-    
-    /**
-     * Liste des documents externes reçus via l'API
-     */
-    public function incomingDocuments()
-    {
-        $docs = IncomingDocument::with('errors')
-            ->orderBy('created_at', 'desc')
-            ->paginate(30);
-        return view('admin.incoming_documents', compact('docs'));
-    }
-    
-    /**
-     * Récupérer les documents depuis une API externe
-     */
-    public function fetchIncomingDocuments(Request $request)
-    {
-        try {
-            // URL de l'API externe (à configurer dans .env)
-            $apiUrl = env('EXTERNAL_API_URL', 'https://api.example.com/documents');
-            $apiToken = env('EXTERNAL_API_TOKEN', '');
-            
-            $response = Http::withToken($apiToken)
-                ->timeout(30)
-                ->get($apiUrl);
-            
-            if ($response->successful()) {
-                $documents = $response->json('data', []);
-                $imported = 0;
-                
-                foreach ($documents as $doc) {
-                    // Vérifier si le document n'existe pas déjà
-                    $exists = IncomingDocument::where('external_id', $doc['id'] ?? null)->exists();
-                    
-                    if (!$exists && isset($doc['filename'])) {
-                        IncomingDocument::create([
-                            'external_id' => $doc['id'] ?? null,
-                            'filename' => $doc['filename'],
-                            'content' => $doc['content'] ?? '',
-                            'uploader_id' => $doc['uploader_id'] ?? 'unknown',
-                            'metadata' => json_encode($doc),
-                        ]);
-                        $imported++;
-                    }
-                }
-                
-                return redirect()->back()->with('status', "$imported document(s) importé(s) avec succès");
-            } else {
-                return redirect()->back()->with('error', 'Erreur lors de la récupération des documents: ' . $response->status());
-            }
-        } catch (\Exception $e) {
-            \Log::error('Erreur fetch incoming documents: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Erreur: ' . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Comparer un document externe
-     */
-    public function compareIncomingDocument($id)
-    {
-        $doc = IncomingDocument::findOrFail($id);
-        
-        if (!$doc->content) {
-            return redirect()->back()->with('error', 'Impossible de comparer : aucun contenu');
-        }
-        
-        // Calculer la signature MinHash si nécessaire
-        if (empty($doc->minhash)) {
-            $doc->minhash = $this->computeMinHash($doc->content, 5, 64);
-            $doc->save();
-        }
-        
-        // Comparer avec tous les documents internes
-        $existing = Document::whereNotNull('content')->get();
-        $results = [];
-        
-        foreach ($existing as $other) {
-            if (!$other->content) continue;
-            
-            if (empty($other->minhash)) {
-                $other->minhash = $this->computeMinHash($other->content, 5, 64);
-                $other->save();
-            }
-            
-            $fast = $this->minhashSimilarity(
-                $doc->minhash ?? [], 
-                $other->minhash ?? []
-            );
-            
-            if ($fast >= 0.4) {
-                $sim = $this->jaccardSimilarityText($doc->content, $other->content, 5);
-            } else {
-                $sim = 0;
-            }
-            
-            if ($sim > 0) {
-                $sa = $this->shinglesText($doc->content, 5);
-                $sb = $this->shinglesText($other->content, 5);
-                $common = array_keys(array_intersect_key($sa, $sb));
-                
-                $snippet = count($common) 
-                    ? substr($common[0], 0, 150) . '...' 
-                    : substr(strip_tags($other->content), 0, 150) . '...';
-                
-                $results[] = [
-                    'other' => $other,
-                    'sim' => $sim,
-                    'snippet' => $snippet
-                ];
-            }
-        }
-        
-        usort($results, fn($a, $b) => $b['sim'] <=> $a['sim']);
-        
-        return view('admin.incoming_compare', compact('doc', 'results'));
-    }
-    
-    /**
-     * Envoyer les erreurs d'un document externe
-     */
-    public function sendIncomingErrors(Request $request, $id)
-    {
-        $doc = IncomingDocument::findOrFail($id);
-        
-        // Récupérer les erreurs
-        $errors = IncomingDocumentError::where('incoming_document_id', $doc->id)->get();
-        
-        // Préparer la réponse
-        $errorData = [
-            'document_id' => $doc->external_id,
-            'filename' => $doc->filename,
-            'errors' => $errors->map(function($e) {
-                return [
-                    'type' => $e->error_type,
-                    'message' => $e->message,
-                ];
-            })->toArray(),
-            'timestamp' => now()->toIso8601String(),
-        ];
-        
-        // Envoyer à l'API externe
-        try {
-            $callbackUrl = $doc->callback_url ?? env('EXTERNAL_API_CALLBACK_URL');
-            
-            if ($callbackUrl) {
-                $response = Http::timeout(30)->post($callbackUrl, $errorData);
-                
-                if ($response->successful()) {
-                    return redirect()->back()->with('status', 'Erreurs envoyées avec succès');
-                } else {
-                    return redirect()->back()->with('error', 'Erreur lors de l\'envoi: ' . $response->status());
-                }
-            } else {
-                return redirect()->back()->with('error', 'URL de callback non configurée');
-            }
-        } catch (\Exception $e) {
-            \Log::error('Erreur envoi erreurs: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Erreur: ' . $e->getMessage());
-        }
+        // Send notification to the user with file name and report description
+        $fileName = $report->document->filename ?? 'Document supprimé';
+        $reportDescription = $report->description;
+        $report->user->notify(new \App\Notifications\ReportErrorResult($fileName, $reportDescription, $details));
+        return redirect()->back()->with('status', 'Résultat envoyé à l’utilisateur : ' . $details);
     }
 }
