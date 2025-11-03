@@ -341,4 +341,62 @@ class DocumentController extends Controller
         $doc->delete();
         return redirect()->route('documents.index')->with('status', 'Document supprimé avec succès.');
     }
+    
+    public function viewExcel($id)
+    {
+        $document = Document::findOrFail($id);
+        
+        // Vérification des permissions
+        if (auth()->id() !== $document->user_id && (auth()->user()->id_role_user ?? 0) != 1) {
+            abort(403);
+        }
+        
+        // Vérifier que c'est bien un fichier Excel
+        $extension = pathinfo($document->filename, PATHINFO_EXTENSION);
+        if (!in_array(strtolower($extension), ['xls', 'xlsx'])) {
+            return redirect()->back()->with('error', 'Ce fichier n\'est pas un fichier Excel');
+        }
+        
+        return view('documents.view_excel', compact('document'));
+    }
+    
+    public function reExtract($id)
+    {
+        $doc = Document::findOrFail($id);
+        
+        // Vérification des permissions
+        if (auth()->id() !== $doc->user_id && (auth()->user()->id_role_user ?? 0) != 1) {
+            abort(403);
+        }
+        
+        try {
+            // Récupérer le chemin complet du fichier
+            $fullPath = storage_path('app/' . $doc->path);
+            
+            if (!file_exists($fullPath)) {
+                return redirect()->back()->with('error', 'Fichier introuvable sur le serveur');
+            }
+            
+            // Extraire le contenu
+            $extension = pathinfo($doc->filename, PATHINFO_EXTENSION);
+            $content = $this->extractContentFromPath($doc->mime, strtolower($extension), $fullPath);
+            
+            if ($content) {
+                $doc->content = $content;
+                
+                // Recalculer le MinHash
+                $doc->minhash = $this->computeMinHash($content, 5, 64);
+                
+                $doc->save();
+                
+                return redirect()->back()->with('status', 'Contenu extrait avec succès! Vous pouvez maintenant visualiser le document.');
+            } else {
+                return redirect()->back()->with('error', 'Impossible d\'extraire le contenu de ce fichier');
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Erreur re-extraction: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erreur lors de l\'extraction: ' . $e->getMessage());
+        }
+    }
 }

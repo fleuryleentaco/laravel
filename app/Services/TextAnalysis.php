@@ -29,6 +29,28 @@ trait TextAnalysis
                         }
                     }
                 }
+            } elseif (in_array($extension, ['xls','xlsx']) || str_contains($mime, 'spreadsheet') || str_contains($mime, 'excel')) {
+                if (class_exists('\PhpOffice\PhpSpreadsheet\IOFactory')) {
+                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($fullPath);
+                    $text = '';
+                    foreach ($spreadsheet->getAllSheets() as $sheet) {
+                        $text .= "\n[Feuille: " . $sheet->getTitle() . "]\n";
+                        foreach ($sheet->getRowIterator() as $row) {
+                            $cellIterator = $row->getCellIterator();
+                            $cellIterator->setIterateOnlyExistingCells(false);
+                            $rowData = [];
+                            foreach ($cellIterator as $cell) {
+                                $value = $cell->getValue();
+                                if ($value !== null && $value !== '') {
+                                    $rowData[] = $value;
+                                }
+                            }
+                            if (!empty($rowData)) {
+                                $text .= implode(' | ', $rowData) . "\n";
+                            }
+                        }
+                    }
+                }
             } elseif (Str::startsWith($mime, 'text') || in_array($extension, ['txt','md','html','htm','csv'])) {
                 $text = file_get_contents($fullPath);
             }

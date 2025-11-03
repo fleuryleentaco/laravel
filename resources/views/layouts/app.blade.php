@@ -17,10 +17,35 @@
 </head>
 <body class="bg-slate-900 text-white min-h-screen">
 
-  <nav class="w-full py-4 px-6 lg:px-12 bg-transparent absolute top-0 left-0 z-20">
+  <nav class="w-full py-4 px-6 lg:px-12 bg-slate-900/95 backdrop-blur-md fixed top-0 left-0 z-50 border-b border-white/10">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <a href="{{ url('/') }}" class="text-xl font-semibold">{{ config('app.name','AntiPlag') }}</a>
-      <div class="flex items-center gap-4">
+      
+      <!-- Mobile menu button -->
+      <button id="mobileMenuBtn" class="lg:hidden text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      
+      <div id="desktopMenu" class="hidden lg:flex items-center gap-4">
+        <!-- Language Selector -->
+        <div class="relative group">
+          <button onclick="document.getElementById('lang-dropdown').classList.toggle('hidden')" class="text-sm text-indigo-200 hover:text-white flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+            </svg>
+            <span class="uppercase">{{ app()->getLocale() }}</span>
+          </button>
+          <div id="lang-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-900 border border-indigo-700 rounded-lg shadow-lg z-50">
+            @foreach(config('app.supported_locales', ['fr' => ['native' => 'Français'], 'en' => ['native' => 'English']]) as $code => $locale)
+              <a href="{{ url()->current() }}?lang={{ $code }}" class="block px-4 py-2 text-sm text-indigo-200 hover:bg-indigo-900/30 {{ app()->getLocale() === $code ? 'bg-indigo-900/50 font-semibold' : '' }}">
+                {{ $locale['native'] }}
+              </a>
+            @endforeach
+          </div>
+        </div>
+        
         @guest
           <a href="{{ route('login') }}" class="text-sm text-indigo-200 hover:text-white">Se connecter</a>
           <a href="{{ route('register') }}" class="text-sm text-indigo-200 hover:text-white">S'inscrire</a>
@@ -75,9 +100,35 @@
         @endguest
       </div>
     </div>
+    
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden lg:hidden bg-slate-900 border-t border-white/10 py-4">
+      <div class="flex flex-col gap-3 px-6">
+        @guest
+          <a href="{{ route('login') }}" class="text-sm text-indigo-200 hover:text-white py-2">Se connecter</a>
+          <a href="{{ route('register') }}" class="text-sm text-indigo-200 hover:text-white py-2">S'inscrire</a>
+        @else
+          <a href="{{ route('documents.index') }}" class="text-indigo-200 hover:text-white py-2">Mes documents</a>
+          @if((auth()->user()->id_role_user ?? 0)==1)
+            <div class="border-t border-white/10 pt-2 mt-2">
+              <div class="text-xs text-gray-400 mb-2">Administration</div>
+              <a href="{{ route('admin.users') }}" class="block text-sm text-white hover:text-indigo-300 py-2">Utilisateurs</a>
+              <a href="{{ route('admin.documents') }}" class="block text-sm text-white hover:text-indigo-300 py-2">Fichiers</a>
+              <a href="{{ route('admin.errors') }}" class="block text-sm text-white hover:text-indigo-300 py-2">Erreurs</a>
+              <a href="{{ route('admin.reports') }}" class="block text-sm text-white hover:text-indigo-300 py-2">Rapports</a>
+              <a href="{{ route('admin.incoming') }}" class="block text-sm text-white hover:text-indigo-300 py-2">Docs externes</a>
+            </div>
+          @endif
+          <div class="border-t border-white/10 pt-2 mt-2">
+            <a href="{{ route('profile.show') }}" class="block text-sm text-white hover:text-indigo-300 py-2">Mon profil</a>
+            <a href="#" onclick="event.preventDefault();document.getElementById('logout-form').submit();" class="block text-sm text-white hover:text-indigo-300 py-2">Déconnexion</a>
+          </div>
+        @endguest
+      </div>
+    </div>
   </nav>
 
-  <div class="flex min-h-screen pt-16">
+  <div class="flex min-h-screen pt-20">
   @unless(View::hasSection('no_hero'))
   <div class="hidden lg:flex lg:w-2/5 items-center justify-center p-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-500 animated-gradient">
       <div class="text-center max-w-md">
@@ -99,6 +150,14 @@
   <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none">@csrf</form>
 
   <script>
+    // Mobile menu toggle
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', function(e){
+      e.stopPropagation();
+      const menu = document.getElementById('mobileMenu');
+      if(!menu) return;
+      menu.classList.toggle('hidden');
+    });
+    
     document.getElementById('userMenuBtn')?.addEventListener('click', function(e){
       const menu = document.getElementById('userMenu');
       if(!menu) return;
@@ -116,6 +175,8 @@
     document.addEventListener('click', function(e){
       const userMenu = document.getElementById('userMenu');
       const adminMenu = document.getElementById('adminMenu');
+      const mobileMenu = document.getElementById('mobileMenu');
+      
       if(userMenu && !userMenu.classList.contains('hidden')){
         // if click outside userMenu and userMenuBtn
         const btn = document.getElementById('userMenuBtn');
@@ -127,6 +188,12 @@
         const btnA = document.getElementById('adminMenuBtn');
         if(btnA && !btnA.contains(e.target) && !adminMenu.contains(e.target)){
           adminMenu.classList.add('hidden');
+        }
+      }
+      if(mobileMenu && !mobileMenu.classList.contains('hidden')){
+        const btnM = document.getElementById('mobileMenuBtn');
+        if(btnM && !btnM.contains(e.target) && !mobileMenu.contains(e.target)){
+          mobileMenu.classList.add('hidden');
         }
       }
     });

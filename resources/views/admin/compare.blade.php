@@ -55,37 +55,37 @@
         </div>
         <!-- Tableau des résultats -->
         <div class="overflow-hidden rounded-xl bg-white/10 border border-white/20 shadow">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+            <div class="overflow-x-auto -mx-4 sm:mx-0">
+                <table class="w-full text-xs md:text-sm min-w-full">
                     <thead class="text-left text-gray-100 bg-white/10">
                         <tr>
-                            <th class="px-6 py-4 font-semibold">Document</th>
-                            <th class="px-6 py-4 font-semibold">Similarité</th>
-                            <th class="px-6 py-4 font-semibold">Extrait commun</th>
-                            <th class="px-6 py-4 font-semibold">Actions</th>
+                            <th class="px-3 md:px-6 py-3 md:py-4 font-semibold">Document</th>
+                            <th class="px-3 md:px-6 py-3 md:py-4 font-semibold">Similarité</th>
+                            <th class="hidden lg:table-cell px-6 py-4 font-semibold">Extrait commun</th>
+                            <th class="px-3 md:px-6 py-3 md:py-4 font-semibold">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-200">
                         @foreach($results as $r)
                             <tr class="border-t border-white/10 hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div class="font-medium">{{ $r['other']->filename }}</div>
+                                <td class="px-3 md:px-6 py-3 md:py-4">
+                                    <div class="font-medium text-xs md:text-sm truncate max-w-[150px] md:max-w-none">{{ $r['other']->filename }}</div>
                                     <div class="text-xs text-gray-400 mt-1">ID: {{ $r['other']->id }}</div>
-                                    <div class="text-xs text-gray-400">
+                                    <div class="text-xs text-gray-400 hidden sm:block">
                                         Propriétaire: {{ $r['other']->user->name ?? $r['other']->user->email }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-3 md:px-6 py-3 md:py-4">
                                     @php
                                         $percentage = round($r['sim'] * 100, 2);
                                         $colorClass = $percentage >= 80 ? 'text-red-400' : 
                                                      ($percentage >= 50 ? 'text-yellow-400' : 'text-blue-400');
                                     @endphp
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-2xl font-bold {{ $colorClass }}">
+                                    <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3">
+                                        <span class="text-xl md:text-2xl font-bold {{ $colorClass }}">
                                             {{ $percentage }}%
                                         </span>
-                                        <div class="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="w-full md:flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
                                             <div class="h-full {{ $percentage >= 80 ? 'bg-red-500' : 
                                                                    ($percentage >= 50 ? 'bg-yellow-500' : 'bg-blue-500') }}" 
                                                  style="width: {{ $percentage }}%">
@@ -93,20 +93,20 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="hidden lg:table-cell px-6 py-4">
                                     <div class="max-w-md">
                                         <code class="text-xs text-gray-300 bg-gray-800/50 px-3 py-2 rounded block overflow-hidden">
                                             {{ $r['snippet'] }}
                                         </code>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-3 md:px-6 py-3 md:py-4">
                                     <div class="flex flex-col gap-2">
                                         <a href="{{ route('admin.reAnalyze', $r['other']->id) }}" 
-                                           class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg 
+                                           class="inline-flex items-center justify-center gap-1 md:gap-2 px-2 md:px-3 py-2 rounded-lg 
                                                   bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-300 
-                                                  border border-yellow-500/30 transition text-xs font-medium">
-                                            🔎 Ré-analyser
+                                                  border border-yellow-500/30 transition text-xs font-medium touch-manipulation whitespace-nowrap">
+                                            🔎 <span class="hidden sm:inline">Ré-analyser</span>
                                         </a>
                                     </div>
                                 </td>

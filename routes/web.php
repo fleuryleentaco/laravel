@@ -35,10 +35,13 @@ Route::middleware('auth')->group(function () {
     Route::get('documents/{id}/compare', [DocumentController::class,'compare'])->name('documents.compare');
     // analyze a single document (user-triggered)
     Route::post('documents/{id}/analyze', [DocumentController::class,'analyze'])->name('documents.analyze');
+    // re-extract content for a document
+    Route::post('documents/{id}/re-extract', [DocumentController::class,'reExtract'])->name('documents.reExtract');
     // add edit/update routes
     Route::get('documents/{id}/edit', [DocumentController::class,'edit'])->name('documents.edit');
     Route::put('documents/{id}', [DocumentController::class,'update'])->name('documents.update');
     Route::get('documents/{id}', [DocumentController::class,'show'])->name('documents.show');
+    Route::get('documents/{id}/view-excel', [DocumentController::class,'viewExcel'])->name('documents.viewExcel');
     Route::delete('documents/{id}', [DocumentController::class,'destroy'])->name('documents.destroy');
 
     Route::get('reports/create', [DocumentController::class,'reportCreate'])->name('reports.create');
@@ -46,6 +49,9 @@ Route::middleware('auth')->group(function () {
 
     // Admin: list all documents (admins only)
     Route::get('admin/documents', [\App\Http\Controllers\AdminController::class,'documents'])->name('admin.documents');
+    
+    // Admin: list all files (same as documents)
+    Route::get('admin/files', [\App\Http\Controllers\AdminController::class,'documents'])->name('admin.files');
 
     // Profile routes for authenticated users
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -65,18 +71,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('documents/{id}/download', [AdminController::class,'download'])->name('documents.download');
     Route::get('reports', [AdminController::class,'reports'])->name('reports');
     Route::get('compare/{id}', [AdminController::class,'compare'])->name('compare');
-    // incoming documents from external API
-    Route::get('incoming', [AdminController::class,'incomingDocuments'])->name('incoming');
-    Route::post('incoming/{id}/send', [AdminController::class,'sendIncomingErrors'])->name('incoming.send');
-    // trigger a fetch from an external API and import new incoming documents
-    Route::post('incoming/fetch', [AdminController::class,'fetchIncomingFromApi'])->name('incoming.fetch');
-    // compare an incoming document specifically (avoid id collision with Document table)
-    Route::get('incoming/{id}/compare', [AdminController::class,'compareIncoming'])->name('incoming.compare');
     // users management
     Route::get('users', [AdminController::class,'users'])->name('users');
     Route::post('users/{id}/toggle-role', [AdminController::class,'toggleRole'])->name('users.toggleRole');
     Route::delete('users/{id}', [AdminController::class,'deleteUser'])->name('users.delete');
-    // Note: incoming documents endpoint is now an API route: POST /api/incoming-documents
+    // incoming documents (docs externes)
+    Route::get('incoming', [AdminController::class,'incomingDocuments'])->name('incoming');
+    Route::post('incoming/fetch', [AdminController::class,'fetchIncomingDocuments'])->name('incoming.fetch');
+    Route::get('incoming/{id}/compare', [AdminController::class,'compareIncomingDocument'])->name('incoming.compare');
+    Route::post('incoming/{id}/send', [AdminController::class,'sendIncomingErrors'])->name('incoming.send');
+    // reports
     Route::post('reports/{id}/send-result', [AdminController::class, 'sendReportResult'])->name('reports.sendResult');
 });
 

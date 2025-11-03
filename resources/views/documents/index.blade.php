@@ -5,25 +5,25 @@
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 text-white p-6">
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+    <div class="flex flex-col space-y-4 mb-8">
         <div>
-            <h2 class="text-3xl font-bold mb-1">📄 Mes Documents</h2>
-            <p class="text-indigo-300 text-sm">Gérez, téléchargez et comparez vos fichiers facilement</p>
+            <h2 class="text-2xl md:text-3xl font-bold mb-1">📄 Mes Documents</h2>
+            <p class="text-indigo-300 text-xs md:text-sm">Gérez, téléchargez et comparez vos fichiers facilement</p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <a href="{{ route('documents.create') }}" 
-               class="mt-4 sm:mt-0 inline-flex items-center gap-2 py-2.5 px-5 rounded-lg bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all duration-300 hover:scale-105 font-medium">
+               class="inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all duration-300 active:scale-95 font-medium text-center touch-manipulation">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Uploader
+                <span>Uploader</span>
             </a>
             <a href="{{ route('documents.errors') }}" 
-               class="mt-4 sm:mt-0 inline-flex items-center gap-2 py-2.5 px-5 rounded-lg bg-pink-600 hover:bg-pink-500 shadow-md transition-all duration-300 hover:scale-105 font-medium">
+               class="inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg bg-pink-600 hover:bg-pink-500 shadow-md transition-all duration-300 active:scale-95 font-medium text-center touch-manipulation">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414 1.414M6.343 17.657l-1.414 1.414M5 12H3m18 0h-2M6.343 6.343l-1.414-1.414M17.657 17.657l-1.414-1.414" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                Voir mes erreurs
+                <span>Voir mes erreurs</span>
             </a>
         </div>
     </div>
@@ -36,7 +36,7 @@
     @endif
 
     <!-- Grille des documents -->
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         @forelse($documents as $d)
         <div class="relative group rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 
                     hover:border-indigo-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 
@@ -57,7 +57,15 @@
                 <!-- Statut du contenu -->
                 @if(!$d->content)
                     <div class="mb-3 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-                        <p class="text-xs text-yellow-300">⚠️ Aucun contenu extrait</p>
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-xs text-yellow-300">⚠️ Aucun contenu extrait</p>
+                            <form method="POST" action="{{ route('documents.reExtract', $d->id) }}" class="inline-block">
+                                @csrf
+                                <button type="submit" class="text-xs px-2 py-1 rounded bg-yellow-600 hover:bg-yellow-500 text-white font-medium transition">
+                                    🔄 Extraire
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 @endif
 
@@ -81,7 +89,7 @@
             </div>
 
             <!-- Actions (footer fixe) -->
-            <div class="px-5 py-4 bg-white/5 border-t border-white/10 flex flex-wrap items-center gap-3">
+            <div class="px-4 py-3 bg-white/5 border-t border-white/10 flex flex-wrap items-center gap-2 text-xs md:text-sm">
                 <a href="{{ route('documents.compare', $d->id) }}"
                    class="text-xs text-blue-400 hover:text-blue-200 transition font-medium">
                     🔍 Comparer

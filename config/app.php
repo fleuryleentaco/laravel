@@ -86,6 +86,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Supported Locales
+    |--------------------------------------------------------------------------
+    |
+    | List of supported locales for the application.
+    | Used by Laravel Localization package.
+    |
+    */
+
+    'supported_locales' => [
+        'fr' => ['name' => 'Français', 'script' => 'Latn', 'native' => 'Français', 'regional' => 'fr_FR'],
+        'en' => ['name' => 'English', 'script' => 'Latn', 'native' => 'English', 'regional' => 'en_GB'],
+        'es' => ['name' => 'Spanish', 'script' => 'Latn', 'native' => 'Español', 'regional' => 'es_ES'],
+        'de' => ['name' => 'German', 'script' => 'Latn', 'native' => 'Deutsch', 'regional' => 'de_DE'],
+        'ar' => ['name' => 'Arabic', 'script' => 'Arab', 'native' => 'العربية', 'regional' => 'ar_SA'],
+        'zh' => ['name' => 'Chinese', 'script' => 'Hans', 'native' => '中文', 'regional' => 'zh_CN'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |
